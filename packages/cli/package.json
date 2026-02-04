@@ -1,0 +1,22 @@
+{
+  "name": "@memomer/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "memomer": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@memomer/core": "*",
+    "@memomer/storage": "*",
+    "@memomer/search": "*",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}
