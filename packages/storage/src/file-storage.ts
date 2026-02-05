@@ -90,19 +90,6 @@ export const createFileStorage = (baseDir: string): Storage => ({
     }
   },
 
-  getAll: async (): Promise<readonly Memo[]> => {
-    const files = await getAllMarkdownFiles(baseDir);
-    const memos: Memo[] = [];
-
-    for (const filePath of files) {
-      const name = filePathToName(baseDir, filePath);
-      const content = await fs.readFile(filePath, "utf-8");
-      memos.push(parseMemo(name, content));
-    }
-
-    return memos;
-  },
-
   listNames: async (): Promise<readonly string[]> => {
     const files = await getAllMarkdownFiles(baseDir);
     return files.map((filePath) => filePathToName(baseDir, filePath));

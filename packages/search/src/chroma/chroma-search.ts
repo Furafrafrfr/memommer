@@ -66,8 +66,14 @@ export const createChromaSearch = async (
 
       // タグとディレクトリでフィルター
       if (query.tags || query.directory) {
-        const memos = await storage.getAll();
-        const memoMap = new Map(memos.map((m) => [m.name, m]));
+        const names = await storage.listNames();
+        const memoMap = new Map<string, { tags: readonly string[] }>();
+        for (const name of names) {
+          const memo = await storage.get(name);
+          if (memo) {
+            memoMap.set(name, { tags: memo.tags });
+          }
+        }
 
         searchResults = searchResults.filter((result) => {
           const memo = memoMap.get(result.name);
@@ -103,8 +109,11 @@ export const createChromaSearch = async (
       });
 
       // 全メモをインデックス
-      const memos = await storage.getAll();
-      for (const memo of memos) {
+      const names = await storage.listNames();
+      for (const name of names) {
+        const memo = await storage.get(name);
+        if (!memo) continue;
+
         const embedding = await embeddingFn(memo.content);
         await newCollection.upsert({
           ids: [nameToId(memo.name)],
@@ -147,23 +156,27 @@ const filterByTagsAndDirectory = async (
   tags?: readonly string[],
   directory?: string
 ): Promise<readonly SearchResult[]> => {
-  const memos = await storage.getAll();
+  const names = await storage.listNames();
+  const results: SearchResult[] = [];
 
-  return memos
-    .filter((memo) => {
-      if (tags && tags.length > 0) {
-        const hasAllTags = tags.every((tag) => memo.tags.includes(tag));
-        if (!hasAllTags) return false;
-      }
+  for (const name of names) {
+    const memo = await storage.get(name);
+    if (!memo) continue;
 
-      if (directory) {
-        if (!memo.name.startsWith(directory)) return false;
-      }
+    if (tags && tags.length > 0) {
+      const hasAllTags = tags.every((tag) => memo.tags.includes(tag));
+      if (!hasAllTags) continue;
+    }
 
-      return true;
-    })
-    .map((memo) => ({
+    if (directory) {
+      if (!memo.name.startsWith(directory)) continue;
+    }
+
+    results.push({
       name: memo.name,
       score: 1.0,
-    }));
+    });
+  }
+
+  return results;
 };

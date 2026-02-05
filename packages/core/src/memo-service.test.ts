@@ -9,7 +9,6 @@ describe("MemoService", () => {
     save: vi.fn().mockResolvedValue(undefined),
     get: vi.fn().mockResolvedValue(null),
     delete: vi.fn().mockResolvedValue(undefined),
-    getAll: vi.fn().mockResolvedValue([]),
     listNames: vi.fn().mockResolvedValue([]),
   });
 

@@ -20,11 +20,6 @@ export type Storage = {
   readonly delete: (name: string) => Promise<void>;
 
   /**
-   * 全てのメモを取得する
-   */
-  readonly getAll: () => Promise<readonly Memo[]>;
-
-  /**
    * 全てのメモ名を取得する
    */
   readonly listNames: () => Promise<readonly string[]>;

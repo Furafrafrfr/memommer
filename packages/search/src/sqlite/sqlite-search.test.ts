@@ -13,7 +13,6 @@ describe("SqliteSearch", () => {
     save: vi.fn().mockResolvedValue(undefined),
     get: vi.fn().mockResolvedValue(null),
     delete: vi.fn().mockResolvedValue(undefined),
-    getAll: vi.fn().mockResolvedValue([]),
     listNames: vi.fn().mockResolvedValue([]),
   });
 
@@ -70,10 +69,6 @@ describe("SqliteSearch", () => {
 
     it("タグでフィルターする", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/meeting", "会議メモ", ["work"]),
-        createMemo("/personal/diary", "日記", ["personal"]),
-      ]);
       const dbPath = path.join(testDir, "test.db");
       const search = await createSqliteSearch({
         storage,
@@ -92,11 +87,6 @@ describe("SqliteSearch", () => {
 
     it("ディレクトリでフィルターする", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/project/meeting", "会議メモ", ["work"]),
-        createMemo("/work/project/task", "タスク", ["work"]),
-        createMemo("/personal/diary", "日記", ["personal"]),
-      ]);
       const dbPath = path.join(testDir, "test.db");
       const search = await createSqliteSearch({
         storage,
@@ -117,11 +107,6 @@ describe("SqliteSearch", () => {
 
     it("テキストとタグを組み合わせて検索する", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/meeting", "会議メモ", ["work", "meeting"]),
-        createMemo("/work/task", "タスク管理", ["work"]),
-        createMemo("/personal/meeting", "友人との約束", ["personal", "meeting"]),
-      ]);
       const dbPath = path.join(testDir, "test.db");
       const search = await createSqliteSearch({
         storage,
@@ -164,10 +149,14 @@ describe("SqliteSearch", () => {
   describe("rebuildIndex", () => {
     it("全メモからインデックスを再構築する", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/meeting", "会議メモ", ["work"]),
-        createMemo("/personal/diary", "日記", ["personal"]),
-      ]);
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
+      vi.mocked(storage.listNames).mockResolvedValue(["/work/meeting", "/personal/diary"]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/meeting") return memo1;
+        if (name === "/personal/diary") return memo2;
+        return null;
+      });
       const dbPath = path.join(testDir, "test.db");
       const search = await createSqliteSearch({
         storage,
@@ -186,9 +175,6 @@ describe("SqliteSearch", () => {
   describe("persistence", () => {
     it("データベースが永続化される", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/meeting", "会議メモ", ["work"]),
-      ]);
       const dbPath = path.join(testDir, "test.db");
 
       // 最初のインスタンスでインデックス作成

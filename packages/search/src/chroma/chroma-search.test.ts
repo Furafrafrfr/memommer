@@ -29,7 +29,6 @@ describe("ChromaSearch", () => {
     save: vi.fn().mockResolvedValue(undefined),
     get: vi.fn().mockResolvedValue(null),
     delete: vi.fn().mockResolvedValue(undefined),
-    getAll: vi.fn().mockResolvedValue([]),
     listNames: vi.fn().mockResolvedValue([]),
   });
 
@@ -65,10 +64,14 @@ describe("ChromaSearch", () => {
 
     it("タグでフィルターする", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/meeting", "会議メモ", ["work"]),
-        createMemo("/personal/diary", "日記", ["personal"]),
-      ]);
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
+      vi.mocked(storage.listNames).mockResolvedValue(["/work/meeting", "/personal/diary"]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/meeting") return memo1;
+        if (name === "/personal/diary") return memo2;
+        return null;
+      });
       const search = await createChromaSearch({
         storage,
         embeddingFn: mockEmbeddingFn,
@@ -82,11 +85,20 @@ describe("ChromaSearch", () => {
 
     it("ディレクトリでフィルターする", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/project/meeting", "会議メモ", ["work"]),
-        createMemo("/work/project/task", "タスク", ["work"]),
-        createMemo("/personal/diary", "日記", ["personal"]),
+      const memo1 = createMemo("/work/project/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/work/project/task", "タスク", ["work"]);
+      const memo3 = createMemo("/personal/diary", "日記", ["personal"]);
+      vi.mocked(storage.listNames).mockResolvedValue([
+        "/work/project/meeting",
+        "/work/project/task",
+        "/personal/diary",
       ]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/project/meeting") return memo1;
+        if (name === "/work/project/task") return memo2;
+        if (name === "/personal/diary") return memo3;
+        return null;
+      });
       const search = await createChromaSearch({
         storage,
         embeddingFn: mockEmbeddingFn,
@@ -115,10 +127,14 @@ describe("ChromaSearch", () => {
   describe("rebuildIndex", () => {
     it("全メモからインデックスを再構築する", async () => {
       const storage = createMockStorage();
-      vi.mocked(storage.getAll).mockResolvedValue([
-        createMemo("/work/meeting", "会議メモ", ["work"]),
-        createMemo("/personal/diary", "日記", ["personal"]),
-      ]);
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
+      vi.mocked(storage.listNames).mockResolvedValue(["/work/meeting", "/personal/diary"]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/meeting") return memo1;
+        if (name === "/personal/diary") return memo2;
+        return null;
+      });
       const search = await createChromaSearch({
         storage,
         embeddingFn: mockEmbeddingFn,

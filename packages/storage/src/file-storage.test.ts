@@ -94,30 +94,6 @@ describe("FileStorage", () => {
     });
   });
 
-  describe("getAll", () => {
-    it("全てのメモを取得する", async () => {
-      const storage = createFileStorage(testDir);
-      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
-      const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
-      await storage.save(memo1);
-      await storage.save(memo2);
-
-      const results = await storage.getAll();
-
-      expect(results).toHaveLength(2);
-      expect(results).toContainEqual({
-        name: "/work/meeting",
-        content: "---\ntags:\n  - work\n---\n会議メモ",
-        tags: ["work"],
-      });
-      expect(results).toContainEqual({
-        name: "/personal/diary",
-        content: "---\ntags:\n  - personal\n---\n日記",
-        tags: ["personal"],
-      });
-    });
-  });
-
   describe("listNames", () => {
     it("全てのメモ名を取得する", async () => {
       const storage = createFileStorage(testDir);

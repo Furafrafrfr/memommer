@@ -146,8 +146,11 @@ export const createSqliteSearch = async (
       db.run("DELETE FROM memos");
 
       // 全メモをインデックス
-      const memos = await storage.getAll();
-      for (const memo of memos) {
+      const names = await storage.listNames();
+      for (const name of names) {
+        const memo = await storage.get(name);
+        if (!memo) continue;
+
         const embedding = await embeddingFn(memo.content);
         const embeddingBase64 = embeddingToBase64(embedding);
         const tagsStr = memo.tags.join(",");
