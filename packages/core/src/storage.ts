@@ -22,5 +22,5 @@ export type Storage = {
   /**
    * 全てのメモ名を取得する
    */
-  readonly listNames: () => Promise<readonly string[]>;
+  readonly list: () => Promise<readonly string[]>;
 };

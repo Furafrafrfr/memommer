@@ -90,7 +90,7 @@ export const createFileStorage = (baseDir: string): Storage => ({
     }
   },
 
-  listNames: async (): Promise<readonly string[]> => {
+  list: async (): Promise<readonly string[]> => {
     const files = await getAllMarkdownFiles(baseDir);
     return files.map((filePath) => filePathToName(baseDir, filePath));
   },

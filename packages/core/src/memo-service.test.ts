@@ -9,7 +9,7 @@ describe("MemoService", () => {
     save: vi.fn().mockResolvedValue(undefined),
     get: vi.fn().mockResolvedValue(null),
     delete: vi.fn().mockResolvedValue(undefined),
-    listNames: vi.fn().mockResolvedValue([]),
+    list: vi.fn().mockResolvedValue([]),
   });
 
   const createMockSearch = (): Search => ({
@@ -81,7 +81,7 @@ describe("MemoService", () => {
     it("全てのメモ名を取得する", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
-      vi.mocked(storage.listNames).mockResolvedValue([
+      vi.mocked(storage.list).mockResolvedValue([
         "/work/meeting",
         "/personal/diary",
       ]);

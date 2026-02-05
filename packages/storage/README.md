@@ -28,7 +28,7 @@ const memo = await storage.get("/work/meeting");
 await storage.delete("/work/meeting");
 
 // 全メモ名を取得
-const names = await storage.listNames();
+const names = await storage.list();
 ```
 
 ## ファイル構造

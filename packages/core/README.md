@@ -54,7 +54,7 @@ type Storage = {
   save: (memo: Memo) => Promise<void>;
   get: (name: string) => Promise<Memo | null>;
   delete: (name: string) => Promise<void>;
-  listNames: () => Promise<readonly string[]>;
+  list: () => Promise<readonly string[]>;
 };
 ```
 

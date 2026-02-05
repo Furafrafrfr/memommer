@@ -66,7 +66,7 @@ export const createChromaSearch = async (
 
       // タグとディレクトリでフィルター
       if (query.tags || query.directory) {
-        const names = await storage.listNames();
+        const names = await storage.list();
         const memoMap = new Map<string, { tags: readonly string[] }>();
         for (const name of names) {
           const memo = await storage.get(name);
@@ -109,7 +109,7 @@ export const createChromaSearch = async (
       });
 
       // 全メモをインデックス
-      const names = await storage.listNames();
+      const names = await storage.list();
       for (const name of names) {
         const memo = await storage.get(name);
         if (!memo) continue;
@@ -156,7 +156,7 @@ const filterByTagsAndDirectory = async (
   tags?: readonly string[],
   directory?: string
 ): Promise<readonly SearchResult[]> => {
-  const names = await storage.listNames();
+  const names = await storage.list();
   const results: SearchResult[] = [];
 
   for (const name of names) {

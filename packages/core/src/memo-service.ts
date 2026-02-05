@@ -38,7 +38,7 @@ export const createMemoService = (
   },
 
   list: async (): Promise<readonly string[]> => {
-    return storage.listNames();
+    return storage.list();
   },
 
   rebuild: async (): Promise<void> => {

@@ -94,13 +94,13 @@ describe("FileStorage", () => {
     });
   });
 
-  describe("listNames", () => {
+  describe("list", () => {
     it("全てのメモ名を取得する", async () => {
       const storage = createFileStorage(testDir);
       await storage.save(createMemo("/work/meeting", "会議メモ"));
       await storage.save(createMemo("/personal/diary", "日記"));
 
-      const names = await storage.listNames();
+      const names = await storage.list();
 
       expect(names).toHaveLength(2);
       expect(names).toContain("/work/meeting");

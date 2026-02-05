@@ -29,7 +29,7 @@ describe("ChromaSearch", () => {
     save: vi.fn().mockResolvedValue(undefined),
     get: vi.fn().mockResolvedValue(null),
     delete: vi.fn().mockResolvedValue(undefined),
-    listNames: vi.fn().mockResolvedValue([]),
+    list: vi.fn().mockResolvedValue([]),
   });
 
   const mockEmbeddingFn = vi.fn().mockResolvedValue([0.1, 0.2, 0.3]);
@@ -66,7 +66,7 @@ describe("ChromaSearch", () => {
       const storage = createMockStorage();
       const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
       const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
-      vi.mocked(storage.listNames).mockResolvedValue(["/work/meeting", "/personal/diary"]);
+      vi.mocked(storage.list).mockResolvedValue(["/work/meeting", "/personal/diary"]);
       vi.mocked(storage.get).mockImplementation(async (name: string) => {
         if (name === "/work/meeting") return memo1;
         if (name === "/personal/diary") return memo2;
@@ -88,7 +88,7 @@ describe("ChromaSearch", () => {
       const memo1 = createMemo("/work/project/meeting", "会議メモ", ["work"]);
       const memo2 = createMemo("/work/project/task", "タスク", ["work"]);
       const memo3 = createMemo("/personal/diary", "日記", ["personal"]);
-      vi.mocked(storage.listNames).mockResolvedValue([
+      vi.mocked(storage.list).mockResolvedValue([
         "/work/project/meeting",
         "/work/project/task",
         "/personal/diary",
@@ -129,7 +129,7 @@ describe("ChromaSearch", () => {
       const storage = createMockStorage();
       const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
       const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
-      vi.mocked(storage.listNames).mockResolvedValue(["/work/meeting", "/personal/diary"]);
+      vi.mocked(storage.list).mockResolvedValue(["/work/meeting", "/personal/diary"]);
       vi.mocked(storage.get).mockImplementation(async (name: string) => {
         if (name === "/work/meeting") return memo1;
         if (name === "/personal/diary") return memo2;
