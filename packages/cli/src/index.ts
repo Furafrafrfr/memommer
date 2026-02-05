@@ -45,33 +45,22 @@ program
   .description("メモを作成・更新する")
   .option("-c, --content <content>", "メモの内容")
   .option("-f, --file <file>", "ファイルから内容を読み込む")
-  .option("-t, --tags <tags>", "カンマ区切りのタグ")
-  .action(async (name: string, options: { content?: string; file?: string; tags?: string }) => {
+  .action(async (name: string, options: { content?: string; file?: string }) => {
     try {
       const service = await initService();
 
-      let content: string;
+      let memo;
       if (options.file) {
         const fileContent = await fs.readFile(options.file, "utf-8");
-        const parsed = parseMemo(name, fileContent);
-        content = parsed.content;
-        const tags = options.tags
-          ? options.tags.split(",").map((t) => t.trim())
-          : parsed.tags;
-        const memo = createMemo(name, content, tags);
-        await service.save(memo);
+        memo = parseMemo(name, fileContent);
       } else if (options.content) {
-        content = options.content;
-        const tags = options.tags
-          ? options.tags.split(",").map((t) => t.trim())
-          : [];
-        const memo = createMemo(name, content, tags);
-        await service.save(memo);
+        memo = createMemo(name, options.content);
       } else {
         console.error("Error: --content または --file オプションが必要です");
         process.exit(1);
       }
 
+      await service.save(memo);
       console.log(`メモ "${name}" を保存しました`);
     } catch (error) {
       console.error("Error:", error instanceof Error ? error.message : error);

@@ -59,7 +59,11 @@ describe("FileStorage", () => {
 
       const result = await storage.get("/work/meeting");
 
-      expect(result).toEqual(memo);
+      expect(result).toEqual({
+        name: "/work/meeting",
+        content: "---\ntags:\n  - work\n---\n会議メモ",
+        tags: ["work"],
+      });
     });
 
     it("存在しないメモはnullを返す", async () => {
@@ -101,8 +105,16 @@ describe("FileStorage", () => {
       const results = await storage.getAll();
 
       expect(results).toHaveLength(2);
-      expect(results).toContainEqual(memo1);
-      expect(results).toContainEqual(memo2);
+      expect(results).toContainEqual({
+        name: "/work/meeting",
+        content: "---\ntags:\n  - work\n---\n会議メモ",
+        tags: ["work"],
+      });
+      expect(results).toContainEqual({
+        name: "/personal/diary",
+        content: "---\ntags:\n  - personal\n---\n日記",
+        tags: ["personal"],
+      });
     });
   });
 

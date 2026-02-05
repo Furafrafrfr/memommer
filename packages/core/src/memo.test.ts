@@ -24,7 +24,7 @@ describe("Memo", () => {
   });
 
   describe("parseMemo", () => {
-    it("フロントマター付きMarkdownからメモをパースできる", () => {
+    it("フロントマター付きMarkdownからメモをパースできる（markdown全体をcontentに保持）", () => {
       const markdown = `---
 tags:
   - work
@@ -35,7 +35,7 @@ tags:
       const memo = parseMemo("/work/project/meeting", markdown);
 
       expect(memo.name).toBe("/work/project/meeting");
-      expect(memo.content).toBe("会議の内容です");
+      expect(memo.content).toBe(markdown); // markdown全体を保持
       expect(memo.tags).toEqual(["work", "meeting"]);
     });
 
@@ -49,7 +49,7 @@ tags:
       expect(memo.tags).toEqual([]);
     });
 
-    it("空のフロントマターを持つMarkdownからメモをパースできる", () => {
+    it("空のフロントマターを持つMarkdownからメモをパースできる（markdown全体をcontentに保持）", () => {
       const markdown = `---
 ---
 内容のみ`;
@@ -57,13 +57,13 @@ tags:
       const memo = parseMemo("/notes/empty-frontmatter", markdown);
 
       expect(memo.name).toBe("/notes/empty-frontmatter");
-      expect(memo.content).toBe("内容のみ");
+      expect(memo.content).toBe(markdown); // markdown全体を保持
       expect(memo.tags).toEqual([]);
     });
   });
 
   describe("serializeMemo", () => {
-    it("メモをMarkdown形式にシリアライズできる", () => {
+    it("タグありでcontentにフロントマターがない場合、フロントマターを生成する", () => {
       const memo = createMemo("/work/project/meeting", "会議の内容です", [
         "work",
         "meeting",
@@ -79,12 +79,26 @@ tags:
 会議の内容です`);
     });
 
-    it("タグなしのメモはフロントマターなしでシリアライズされる", () => {
+    it("タグなしのメモはcontentをそのまま返す", () => {
       const memo = createMemo("/notes/simple", "シンプルなメモです");
 
       const markdown = serializeMemo(memo);
 
       expect(markdown).toBe("シンプルなメモです");
+    });
+
+    it("contentに既にフロントマターがある場合はそのまま返す", () => {
+      const originalMarkdown = `---
+tags:
+  - work
+  - meeting
+---
+会議の内容です`;
+
+      const memo = parseMemo("/work/project/meeting", originalMarkdown);
+      const serialized = serializeMemo(memo);
+
+      expect(serialized).toBe(originalMarkdown);
     });
   });
 });

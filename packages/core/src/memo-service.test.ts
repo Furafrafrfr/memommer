@@ -21,7 +21,7 @@ describe("MemoService", () => {
   });
 
   describe("save", () => {
-    it("メモを保存し、インデックスを更新する", async () => {
+    it("メモを保存する（インデックスは更新しない）", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
       const service = createMemoService(storage, search);
@@ -30,11 +30,7 @@ describe("MemoService", () => {
       await service.save(memo);
 
       expect(storage.save).toHaveBeenCalledWith(memo);
-      expect(search.indexMemo).toHaveBeenCalledWith(
-        "/work/meeting",
-        "会議メモ",
-        ["work"]
-      );
+      expect(search.indexMemo).not.toHaveBeenCalled();
     });
   });
 
@@ -54,7 +50,7 @@ describe("MemoService", () => {
   });
 
   describe("delete", () => {
-    it("メモを削除し、インデックスからも削除する", async () => {
+    it("メモを削除する（インデックスからは削除しない）", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
       const service = createMemoService(storage, search);
@@ -62,7 +58,7 @@ describe("MemoService", () => {
       await service.delete("/work/meeting");
 
       expect(storage.delete).toHaveBeenCalledWith("/work/meeting");
-      expect(search.removeFromIndex).toHaveBeenCalledWith("/work/meeting");
+      expect(search.removeFromIndex).not.toHaveBeenCalled();
     });
   });
 

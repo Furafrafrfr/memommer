@@ -23,7 +23,6 @@ export const createMemoService = (
 ): MemoService => ({
   save: async (memo: Memo): Promise<void> => {
     await storage.save(memo);
-    await search.indexMemo(memo.name, memo.content, memo.tags);
   },
 
   get: async (name: string): Promise<Memo | null> => {
@@ -32,7 +31,6 @@ export const createMemoService = (
 
   delete: async (name: string): Promise<void> => {
     await storage.delete(name);
-    await search.removeFromIndex(name);
   },
 
   search: async (query: SearchQuery): Promise<readonly SearchResult[]> => {
