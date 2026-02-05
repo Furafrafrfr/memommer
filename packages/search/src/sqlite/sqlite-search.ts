@@ -141,7 +141,7 @@ export const createSqliteSearch = async (
       return results.map(({ name, score }) => ({ name, score }));
     },
 
-    rebuild: async (): Promise<void> => {
+    sync: async (): Promise<void> => {
       // 既存データを削除
       db.run("DELETE FROM memos");
 
@@ -161,28 +161,6 @@ export const createSqliteSearch = async (
         );
       }
 
-      await saveFn();
-    },
-
-    index: async (
-      name: string,
-      content: string,
-      tags: readonly string[]
-    ): Promise<void> => {
-      const embedding = await embeddingFn(content);
-      const embeddingBase64 = embeddingToBase64(embedding);
-      const tagsStr = tags.join(",");
-
-      db.run(
-        "INSERT OR REPLACE INTO memos (name, embedding, tags) VALUES (?, ?, ?)",
-        [name, embeddingBase64, tagsStr]
-      );
-
-      await saveFn();
-    },
-
-    remove: async (name: string): Promise<void> => {
-      db.run("DELETE FROM memos WHERE name = ?", [name]);
       await saveFn();
     },
   };

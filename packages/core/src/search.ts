@@ -30,21 +30,8 @@ export type Search = {
   readonly search: (query: SearchQuery) => Promise<readonly SearchResult[]>;
 
   /**
-   * インデックスを再構築する
+   * ストレージの全メモとインデックスを同期する
+   * （全削除→全追加）
    */
-  readonly rebuild: () => Promise<void>;
-
-  /**
-   * メモをインデックスに追加/更新する
-   */
-  readonly index: (
-    name: string,
-    content: string,
-    tags: readonly string[]
-  ) => Promise<void>;
-
-  /**
-   * メモをインデックスから削除する
-   */
-  readonly remove: (name: string) => Promise<void>;
+  readonly sync: () => Promise<void>;
 };

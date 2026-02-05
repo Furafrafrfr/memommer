@@ -14,13 +14,11 @@ describe("MemoService", () => {
 
   const createMockSearch = (): Search => ({
     search: vi.fn().mockResolvedValue([]),
-    rebuild: vi.fn().mockResolvedValue(undefined),
-    index: vi.fn().mockResolvedValue(undefined),
-    remove: vi.fn().mockResolvedValue(undefined),
+    sync: vi.fn().mockResolvedValue(undefined),
   });
 
   describe("save", () => {
-    it("メモを保存する（インデックスは更新しない）", async () => {
+    it("メモを保存する", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
       const service = createMemoService(storage, search);
@@ -29,7 +27,6 @@ describe("MemoService", () => {
       await service.save(memo);
 
       expect(storage.save).toHaveBeenCalledWith(memo);
-      expect(search.index).not.toHaveBeenCalled();
     });
   });
 
@@ -49,7 +46,7 @@ describe("MemoService", () => {
   });
 
   describe("delete", () => {
-    it("メモを削除する（インデックスからは削除しない）", async () => {
+    it("メモを削除する", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
       const service = createMemoService(storage, search);
@@ -57,7 +54,6 @@ describe("MemoService", () => {
       await service.delete("/work/meeting");
 
       expect(storage.delete).toHaveBeenCalledWith("/work/meeting");
-      expect(search.remove).not.toHaveBeenCalled();
     });
   });
 
@@ -93,15 +89,15 @@ describe("MemoService", () => {
     });
   });
 
-  describe("rebuild", () => {
-    it("検索インデックスを再構築する", async () => {
+  describe("sync", () => {
+    it("検索インデックスを同期する", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
       const service = createMemoService(storage, search);
 
-      await service.rebuild();
+      await service.sync();
 
-      expect(search.rebuild).toHaveBeenCalled();
+      expect(search.sync).toHaveBeenCalled();
     });
   });
 });

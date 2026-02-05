@@ -32,126 +32,15 @@ describe("SqliteSearch", () => {
     await fs.rm(testDir, { recursive: true, force: true });
   });
 
-  describe("index", () => {
-    it("メモをインデックスに追加する", async () => {
-      const storage = createMockStorage();
-      const dbPath = path.join(testDir, "test.db");
-      const search = await createSqliteSearch({
-        storage,
-        embeddingFn: mockEmbeddingFn,
-        dbPath,
-      });
-
-      await search.index("/work/meeting", "会議メモ", ["work"]);
-
-      expect(mockEmbeddingFn).toHaveBeenCalledWith("会議メモ");
-    });
-  });
-
-  describe("search", () => {
-    it("テキストで検索する", async () => {
-      const storage = createMockStorage();
-      const dbPath = path.join(testDir, "test.db");
-      const search = await createSqliteSearch({
-        storage,
-        embeddingFn: mockEmbeddingFn,
-        dbPath,
-      });
-
-      await search.index("/work/meeting", "会議メモ", ["work"]);
-      await search.index("/personal/diary", "日記を書く", ["personal"]);
-
-      const results = await search.search({ text: "会議" });
-
-      expect(results.length).toBeGreaterThan(0);
-      expect(mockEmbeddingFn).toHaveBeenCalledWith("会議");
-    });
-
-    it("タグでフィルターする", async () => {
-      const storage = createMockStorage();
-      const dbPath = path.join(testDir, "test.db");
-      const search = await createSqliteSearch({
-        storage,
-        embeddingFn: mockEmbeddingFn,
-        dbPath,
-      });
-
-      await search.index("/work/meeting", "会議メモ", ["work"]);
-      await search.index("/personal/diary", "日記", ["personal"]);
-
-      const results = await search.search({ tags: ["work"] });
-
-      expect(results).toHaveLength(1);
-      expect(results[0].name).toBe("/work/meeting");
-    });
-
-    it("ディレクトリでフィルターする", async () => {
-      const storage = createMockStorage();
-      const dbPath = path.join(testDir, "test.db");
-      const search = await createSqliteSearch({
-        storage,
-        embeddingFn: mockEmbeddingFn,
-        dbPath,
-      });
-
-      await search.index("/work/project/meeting", "会議メモ", ["work"]);
-      await search.index("/work/project/task", "タスク", ["work"]);
-      await search.index("/personal/diary", "日記", ["personal"]);
-
-      const results = await search.search({ directory: "/work" });
-
-      expect(results).toHaveLength(2);
-      expect(results.map((r) => r.name)).toContain("/work/project/meeting");
-      expect(results.map((r) => r.name)).toContain("/work/project/task");
-    });
-
-    it("テキストとタグを組み合わせて検索する", async () => {
-      const storage = createMockStorage();
-      const dbPath = path.join(testDir, "test.db");
-      const search = await createSqliteSearch({
-        storage,
-        embeddingFn: mockEmbeddingFn,
-        dbPath,
-      });
-
-      await search.index("/work/meeting", "会議メモ", ["work", "meeting"]);
-      await search.index("/work/task", "タスク管理", ["work"]);
-      await search.index("/personal/meeting", "友人との約束", [
-        "personal",
-        "meeting",
-      ]);
-
-      const results = await search.search({ text: "会議", tags: ["work"] });
-
-      // workタグを持つメモのみがフィルターされる
-      expect(results.every((r) => r.name.startsWith("/work"))).toBe(true);
-    });
-  });
-
-  describe("remove", () => {
-    it("メモをインデックスから削除する", async () => {
-      const storage = createMockStorage();
-      const dbPath = path.join(testDir, "test.db");
-      const search = await createSqliteSearch({
-        storage,
-        embeddingFn: mockEmbeddingFn,
-        dbPath,
-      });
-
-      await search.index("/work/meeting", "会議メモ", ["work"]);
-      await search.remove("/work/meeting");
-
-      const results = await search.search({ text: "会議" });
-      expect(results).toHaveLength(0);
-    });
-  });
-
-  describe("rebuild", () => {
-    it("全メモからインデックスを再構築する", async () => {
+  describe("sync", () => {
+    it("ストレージの全メモをインデックスに同期する", async () => {
       const storage = createMockStorage();
       const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
       const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
-      vi.mocked(storage.list).mockResolvedValue(["/work/meeting", "/personal/diary"]);
+      vi.mocked(storage.list).mockResolvedValue([
+        "/work/meeting",
+        "/personal/diary",
+      ]);
       vi.mocked(storage.get).mockImplementation(async (name: string) => {
         if (name === "/work/meeting") return memo1;
         if (name === "/personal/diary") return memo2;
@@ -164,7 +53,7 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.rebuild();
+      await search.sync();
 
       // embedding関数が各メモに対して呼ばれる
       expect(mockEmbeddingFn).toHaveBeenCalledWith("会議メモ");
@@ -172,18 +61,141 @@ describe("SqliteSearch", () => {
     });
   });
 
+  describe("search", () => {
+    it("テキストで検索する", async () => {
+      const storage = createMockStorage();
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/personal/diary", "日記を書く", ["personal"]);
+      vi.mocked(storage.list).mockResolvedValue([
+        "/work/meeting",
+        "/personal/diary",
+      ]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/meeting") return memo1;
+        if (name === "/personal/diary") return memo2;
+        return null;
+      });
+      const dbPath = path.join(testDir, "test.db");
+      const search = await createSqliteSearch({
+        storage,
+        embeddingFn: mockEmbeddingFn,
+        dbPath,
+      });
+
+      await search.sync();
+      const results = await search.search({ text: "会議" });
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(mockEmbeddingFn).toHaveBeenCalledWith("会議");
+    });
+
+    it("タグでフィルターする", async () => {
+      const storage = createMockStorage();
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/personal/diary", "日記", ["personal"]);
+      vi.mocked(storage.list).mockResolvedValue([
+        "/work/meeting",
+        "/personal/diary",
+      ]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/meeting") return memo1;
+        if (name === "/personal/diary") return memo2;
+        return null;
+      });
+      const dbPath = path.join(testDir, "test.db");
+      const search = await createSqliteSearch({
+        storage,
+        embeddingFn: mockEmbeddingFn,
+        dbPath,
+      });
+
+      await search.sync();
+      const results = await search.search({ tags: ["work"] });
+
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe("/work/meeting");
+    });
+
+    it("ディレクトリでフィルターする", async () => {
+      const storage = createMockStorage();
+      const memo1 = createMemo("/work/project/meeting", "会議メモ", ["work"]);
+      const memo2 = createMemo("/work/project/task", "タスク", ["work"]);
+      const memo3 = createMemo("/personal/diary", "日記", ["personal"]);
+      vi.mocked(storage.list).mockResolvedValue([
+        "/work/project/meeting",
+        "/work/project/task",
+        "/personal/diary",
+      ]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/project/meeting") return memo1;
+        if (name === "/work/project/task") return memo2;
+        if (name === "/personal/diary") return memo3;
+        return null;
+      });
+      const dbPath = path.join(testDir, "test.db");
+      const search = await createSqliteSearch({
+        storage,
+        embeddingFn: mockEmbeddingFn,
+        dbPath,
+      });
+
+      await search.sync();
+      const results = await search.search({ directory: "/work" });
+
+      expect(results).toHaveLength(2);
+      expect(results.map((r) => r.name)).toContain("/work/project/meeting");
+      expect(results.map((r) => r.name)).toContain("/work/project/task");
+    });
+
+    it("テキストとタグを組み合わせて検索する", async () => {
+      const storage = createMockStorage();
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work", "meeting"]);
+      const memo2 = createMemo("/work/task", "タスク管理", ["work"]);
+      const memo3 = createMemo("/personal/meeting", "友人との約束", [
+        "personal",
+        "meeting",
+      ]);
+      vi.mocked(storage.list).mockResolvedValue([
+        "/work/meeting",
+        "/work/task",
+        "/personal/meeting",
+      ]);
+      vi.mocked(storage.get).mockImplementation(async (name: string) => {
+        if (name === "/work/meeting") return memo1;
+        if (name === "/work/task") return memo2;
+        if (name === "/personal/meeting") return memo3;
+        return null;
+      });
+      const dbPath = path.join(testDir, "test.db");
+      const search = await createSqliteSearch({
+        storage,
+        embeddingFn: mockEmbeddingFn,
+        dbPath,
+      });
+
+      await search.sync();
+      const results = await search.search({ text: "会議", tags: ["work"] });
+
+      // workタグを持つメモのみがフィルターされる
+      expect(results.every((r) => r.name.startsWith("/work"))).toBe(true);
+    });
+  });
+
   describe("persistence", () => {
     it("データベースが永続化される", async () => {
       const storage = createMockStorage();
+      const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
+      vi.mocked(storage.list).mockResolvedValue(["/work/meeting"]);
+      vi.mocked(storage.get).mockResolvedValue(memo1);
       const dbPath = path.join(testDir, "test.db");
 
-      // 最初のインスタンスでインデックス作成
+      // 最初のインスタンスで同期
       const search1 = await createSqliteSearch({
         storage,
         embeddingFn: mockEmbeddingFn,
         dbPath,
       });
-      await search1.index("/work/meeting", "会議メモ", ["work"]);
+      await search1.sync();
 
       // 新しいインスタンスで検索
       const search2 = await createSqliteSearch({

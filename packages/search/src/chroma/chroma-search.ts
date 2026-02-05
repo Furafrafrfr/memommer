@@ -97,7 +97,7 @@ export const createChromaSearch = async (
       return searchResults;
     },
 
-    rebuild: async (): Promise<void> => {
+    sync: async (): Promise<void> => {
       // 既存のコレクションを削除して再作成
       try {
         await client.deleteCollection({ name: collectionName });
@@ -120,29 +120,6 @@ export const createChromaSearch = async (
           embeddings: [embedding],
           metadatas: [{ tags: memo.tags.join(","), name: memo.name }],
         });
-      }
-    },
-
-    index: async (
-      name: string,
-      content: string,
-      tags: readonly string[]
-    ): Promise<void> => {
-      const embedding = await embeddingFn(content);
-      await collection.upsert({
-        ids: [nameToId(name)],
-        embeddings: [embedding],
-        metadatas: [{ tags: tags.join(","), name }],
-      });
-    },
-
-    remove: async (name: string): Promise<void> => {
-      try {
-        await collection.delete({
-          ids: [nameToId(name)],
-        });
-      } catch {
-        // 存在しない場合は無視
       }
     },
   };

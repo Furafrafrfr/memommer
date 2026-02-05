@@ -118,13 +118,13 @@ program
 
 program
   .command("prepare")
-  .description("検索インデックスを再構築する")
+  .description("検索インデックスを同期する")
   .action(async () => {
     try {
       const service = await initService();
-      console.log("インデックスを再構築中...");
-      await service.rebuild();
-      console.log("インデックスの再構築が完了しました");
+      console.log("インデックスを同期中...");
+      await service.sync();
+      console.log("インデックスの同期が完了しました");
     } catch (error) {
       console.error("Error:", error instanceof Error ? error.message : error);
       process.exit(1);
