@@ -56,8 +56,8 @@ program
       } else if (options.content) {
         memo = createMemo(name, options.content);
       } else {
-        console.error("Error: --content または --file オプションが必要です");
-        process.exit(1);
+        // オプションなしの場合は空のメモを作成
+        memo = createMemo(name, "");
       }
 
       await service.save(memo);
