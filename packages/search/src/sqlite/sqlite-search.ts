@@ -141,7 +141,7 @@ export const createSqliteSearch = async (
       return results.map(({ name, score }) => ({ name, score }));
     },
 
-    rebuildIndex: async (): Promise<void> => {
+    rebuild: async (): Promise<void> => {
       // 既存データを削除
       db.run("DELETE FROM memos");
 
@@ -164,7 +164,7 @@ export const createSqliteSearch = async (
       await saveFn();
     },
 
-    indexMemo: async (
+    index: async (
       name: string,
       content: string,
       tags: readonly string[]
@@ -181,7 +181,7 @@ export const createSqliteSearch = async (
       await saveFn();
     },
 
-    removeFromIndex: async (name: string): Promise<void> => {
+    remove: async (name: string): Promise<void> => {
       db.run("DELETE FROM memos WHERE name = ?", [name]);
       await saveFn();
     },

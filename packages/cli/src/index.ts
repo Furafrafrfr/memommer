@@ -123,7 +123,7 @@ program
     try {
       const service = await initService();
       console.log("インデックスを再構築中...");
-      await service.rebuildIndex();
+      await service.rebuild();
       console.log("インデックスの再構築が完了しました");
     } catch (error) {
       console.error("Error:", error instanceof Error ? error.message : error);

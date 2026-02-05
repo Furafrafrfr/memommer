@@ -14,9 +14,9 @@ describe("MemoService", () => {
 
   const createMockSearch = (): Search => ({
     search: vi.fn().mockResolvedValue([]),
-    rebuildIndex: vi.fn().mockResolvedValue(undefined),
-    indexMemo: vi.fn().mockResolvedValue(undefined),
-    removeFromIndex: vi.fn().mockResolvedValue(undefined),
+    rebuild: vi.fn().mockResolvedValue(undefined),
+    index: vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
   });
 
   describe("save", () => {
@@ -29,7 +29,7 @@ describe("MemoService", () => {
       await service.save(memo);
 
       expect(storage.save).toHaveBeenCalledWith(memo);
-      expect(search.indexMemo).not.toHaveBeenCalled();
+      expect(search.index).not.toHaveBeenCalled();
     });
   });
 
@@ -57,7 +57,7 @@ describe("MemoService", () => {
       await service.delete("/work/meeting");
 
       expect(storage.delete).toHaveBeenCalledWith("/work/meeting");
-      expect(search.removeFromIndex).not.toHaveBeenCalled();
+      expect(search.remove).not.toHaveBeenCalled();
     });
   });
 
@@ -93,15 +93,15 @@ describe("MemoService", () => {
     });
   });
 
-  describe("rebuildIndex", () => {
+  describe("rebuild", () => {
     it("検索インデックスを再構築する", async () => {
       const storage = createMockStorage();
       const search = createMockSearch();
       const service = createMemoService(storage, search);
 
-      await service.rebuildIndex();
+      await service.rebuild();
 
-      expect(search.rebuildIndex).toHaveBeenCalled();
+      expect(search.rebuild).toHaveBeenCalled();
     });
   });
 });

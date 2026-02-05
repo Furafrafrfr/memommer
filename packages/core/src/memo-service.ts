@@ -11,7 +11,7 @@ export type MemoService = {
   readonly delete: (name: string) => Promise<void>;
   readonly search: (query: SearchQuery) => Promise<readonly SearchResult[]>;
   readonly list: () => Promise<readonly string[]>;
-  readonly rebuildIndex: () => Promise<void>;
+  readonly rebuild: () => Promise<void>;
 };
 
 /**
@@ -41,7 +41,7 @@ export const createMemoService = (
     return storage.listNames();
   },
 
-  rebuildIndex: async (): Promise<void> => {
-    await search.rebuildIndex();
+  rebuild: async (): Promise<void> => {
+    await search.rebuild();
   },
 });

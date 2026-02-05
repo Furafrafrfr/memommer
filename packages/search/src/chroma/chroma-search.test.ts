@@ -34,7 +34,7 @@ describe("ChromaSearch", () => {
 
   const mockEmbeddingFn = vi.fn().mockResolvedValue([0.1, 0.2, 0.3]);
 
-  describe("indexMemo", () => {
+  describe("index", () => {
     it("メモをインデックスに追加する", async () => {
       const storage = createMockStorage();
       const search = await createChromaSearch({
@@ -42,7 +42,7 @@ describe("ChromaSearch", () => {
         embeddingFn: mockEmbeddingFn,
       });
 
-      await search.indexMemo("/work/meeting", "会議メモ", ["work"]);
+      await search.index("/work/meeting", "会議メモ", ["work"]);
 
       expect(mockEmbeddingFn).toHaveBeenCalledWith("会議メモ");
     });
@@ -110,7 +110,7 @@ describe("ChromaSearch", () => {
     });
   });
 
-  describe("removeFromIndex", () => {
+  describe("remove", () => {
     it("メモをインデックスから削除する", async () => {
       const storage = createMockStorage();
       const search = await createChromaSearch({
@@ -119,12 +119,12 @@ describe("ChromaSearch", () => {
       });
 
       await expect(
-        search.removeFromIndex("/work/meeting")
+        search.remove("/work/meeting")
       ).resolves.not.toThrow();
     });
   });
 
-  describe("rebuildIndex", () => {
+  describe("rebuild", () => {
     it("全メモからインデックスを再構築する", async () => {
       const storage = createMockStorage();
       const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
@@ -140,7 +140,7 @@ describe("ChromaSearch", () => {
         embeddingFn: mockEmbeddingFn,
       });
 
-      await expect(search.rebuildIndex()).resolves.not.toThrow();
+      await expect(search.rebuild()).resolves.not.toThrow();
     });
   });
 });

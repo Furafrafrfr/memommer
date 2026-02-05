@@ -32,7 +32,7 @@ describe("SqliteSearch", () => {
     await fs.rm(testDir, { recursive: true, force: true });
   });
 
-  describe("indexMemo", () => {
+  describe("index", () => {
     it("メモをインデックスに追加する", async () => {
       const storage = createMockStorage();
       const dbPath = path.join(testDir, "test.db");
@@ -42,7 +42,7 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.indexMemo("/work/meeting", "会議メモ", ["work"]);
+      await search.index("/work/meeting", "会議メモ", ["work"]);
 
       expect(mockEmbeddingFn).toHaveBeenCalledWith("会議メモ");
     });
@@ -58,8 +58,8 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.indexMemo("/work/meeting", "会議メモ", ["work"]);
-      await search.indexMemo("/personal/diary", "日記を書く", ["personal"]);
+      await search.index("/work/meeting", "会議メモ", ["work"]);
+      await search.index("/personal/diary", "日記を書く", ["personal"]);
 
       const results = await search.search({ text: "会議" });
 
@@ -76,8 +76,8 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.indexMemo("/work/meeting", "会議メモ", ["work"]);
-      await search.indexMemo("/personal/diary", "日記", ["personal"]);
+      await search.index("/work/meeting", "会議メモ", ["work"]);
+      await search.index("/personal/diary", "日記", ["personal"]);
 
       const results = await search.search({ tags: ["work"] });
 
@@ -94,9 +94,9 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.indexMemo("/work/project/meeting", "会議メモ", ["work"]);
-      await search.indexMemo("/work/project/task", "タスク", ["work"]);
-      await search.indexMemo("/personal/diary", "日記", ["personal"]);
+      await search.index("/work/project/meeting", "会議メモ", ["work"]);
+      await search.index("/work/project/task", "タスク", ["work"]);
+      await search.index("/personal/diary", "日記", ["personal"]);
 
       const results = await search.search({ directory: "/work" });
 
@@ -114,9 +114,9 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.indexMemo("/work/meeting", "会議メモ", ["work", "meeting"]);
-      await search.indexMemo("/work/task", "タスク管理", ["work"]);
-      await search.indexMemo("/personal/meeting", "友人との約束", [
+      await search.index("/work/meeting", "会議メモ", ["work", "meeting"]);
+      await search.index("/work/task", "タスク管理", ["work"]);
+      await search.index("/personal/meeting", "友人との約束", [
         "personal",
         "meeting",
       ]);
@@ -128,7 +128,7 @@ describe("SqliteSearch", () => {
     });
   });
 
-  describe("removeFromIndex", () => {
+  describe("remove", () => {
     it("メモをインデックスから削除する", async () => {
       const storage = createMockStorage();
       const dbPath = path.join(testDir, "test.db");
@@ -138,15 +138,15 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.indexMemo("/work/meeting", "会議メモ", ["work"]);
-      await search.removeFromIndex("/work/meeting");
+      await search.index("/work/meeting", "会議メモ", ["work"]);
+      await search.remove("/work/meeting");
 
       const results = await search.search({ text: "会議" });
       expect(results).toHaveLength(0);
     });
   });
 
-  describe("rebuildIndex", () => {
+  describe("rebuild", () => {
     it("全メモからインデックスを再構築する", async () => {
       const storage = createMockStorage();
       const memo1 = createMemo("/work/meeting", "会議メモ", ["work"]);
@@ -164,7 +164,7 @@ describe("SqliteSearch", () => {
         dbPath,
       });
 
-      await search.rebuildIndex();
+      await search.rebuild();
 
       // embedding関数が各メモに対して呼ばれる
       expect(mockEmbeddingFn).toHaveBeenCalledWith("会議メモ");
@@ -183,7 +183,7 @@ describe("SqliteSearch", () => {
         embeddingFn: mockEmbeddingFn,
         dbPath,
       });
-      await search1.indexMemo("/work/meeting", "会議メモ", ["work"]);
+      await search1.index("/work/meeting", "会議メモ", ["work"]);
 
       // 新しいインスタンスで検索
       const search2 = await createSqliteSearch({

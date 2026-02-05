@@ -97,7 +97,7 @@ export const createChromaSearch = async (
       return searchResults;
     },
 
-    rebuildIndex: async (): Promise<void> => {
+    rebuild: async (): Promise<void> => {
       // 既存のコレクションを削除して再作成
       try {
         await client.deleteCollection({ name: collectionName });
@@ -123,7 +123,7 @@ export const createChromaSearch = async (
       }
     },
 
-    indexMemo: async (
+    index: async (
       name: string,
       content: string,
       tags: readonly string[]
@@ -136,7 +136,7 @@ export const createChromaSearch = async (
       });
     },
 
-    removeFromIndex: async (name: string): Promise<void> => {
+    remove: async (name: string): Promise<void> => {
       try {
         await collection.delete({
           ids: [nameToId(name)],
