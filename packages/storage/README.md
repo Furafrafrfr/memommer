@@ -27,9 +27,6 @@ const memo = await storage.get("/work/meeting");
 // メモを削除
 await storage.delete("/work/meeting");
 
-// 全メモを取得
-const memos = await storage.getAll();
-
 // 全メモ名を取得
 const names = await storage.listNames();
 ```

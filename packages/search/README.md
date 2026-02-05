@@ -64,9 +64,9 @@ const results = await search.search({
 });
 
 // インデックス操作
-await search.indexMemo("/work/meeting", "会議の内容", ["work"]);
-await search.removeFromIndex("/work/meeting");
-await search.rebuildIndex();
+await search.index("/work/meeting", "会議の内容", ["work"]);
+await search.remove("/work/meeting");
+await search.rebuild();
 ```
 
 ### Embedding

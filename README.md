@@ -22,7 +22,9 @@ npm run build
 export GEMINI_API_KEY=your-api-key
 
 # メモを作成
-npx memomer create /work/meeting -c "会議の内容" -t "work,meeting"
+npx memomer create /work/meeting -c "会議の内容"
+npx memomer create /work/meeting -f meeting.md
+npx memomer create /work/meeting  # 空のメモ
 
 # メモを取得
 npx memomer get /work/meeting
@@ -48,8 +50,8 @@ npx memomer delete /work/meeting
 | 変数名 | 説明 | デフォルト |
 |--------|------|-----------|
 | `GEMINI_API_KEY` | Gemini APIキー（必須） | - |
-| `MEMOMER_DIR` | メモ保存ディレクトリ | `~/.memomer/memos` |
-| `MEMOMER_DB_PATH` | 検索インデックスDB | `~/.memomer/search.db` |
+| `MEMOMER_DIR` | メモ保存ディレクトリ | カレントディレクトリ |
+| `MEMOMER_DB_PATH` | 検索インデックスDB | `{MEMOMER_DIR}/.memomer.db` |
 
 ## パッケージ構成
 

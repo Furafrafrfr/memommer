@@ -42,7 +42,7 @@ await service.get("/work/meeting");
 await service.delete("/work/meeting");
 await service.search({ text: "会議", tags: ["work"] });
 await service.list();
-await service.rebuildIndex();
+await service.rebuild();
 ```
 
 ### インターフェース
@@ -54,7 +54,6 @@ type Storage = {
   save: (memo: Memo) => Promise<void>;
   get: (name: string) => Promise<Memo | null>;
   delete: (name: string) => Promise<void>;
-  getAll: () => Promise<readonly Memo[]>;
   listNames: () => Promise<readonly string[]>;
 };
 ```
@@ -64,8 +63,8 @@ type Storage = {
 ```typescript
 type Search = {
   search: (query: SearchQuery) => Promise<readonly SearchResult[]>;
-  rebuildIndex: () => Promise<void>;
-  indexMemo: (name: string, content: string, tags: readonly string[]) => Promise<void>;
-  removeFromIndex: (name: string) => Promise<void>;
+  rebuild: () => Promise<void>;
+  index: (name: string, content: string, tags: readonly string[]) => Promise<void>;
+  remove: (name: string) => Promise<void>;
 };
 ```
