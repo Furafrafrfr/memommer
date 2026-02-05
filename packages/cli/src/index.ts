@@ -3,20 +3,9 @@ import { Command } from "commander";
 import { createMemoService, createMemo, parseMemo } from "@memomer/core";
 import { createFileStorage } from "@memomer/storage";
 import { createSqliteSearch, createGeminiEmbedding } from "@memomer/search";
+import { getDefaultMemoDir, getDefaultDbPath } from "./config.js";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import * as os from "node:os";
-
-const getDefaultMemoDir = (): string => {
-  return process.env.MEMOMER_DIR ?? path.join(os.homedir(), ".memomer", "memos");
-};
-
-const getDefaultDbPath = (): string => {
-  return (
-    process.env.MEMOMER_DB_PATH ??
-    path.join(os.homedir(), ".memomer", "search.db")
-  );
-};
 
 const getGeminiApiKey = (): string => {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -30,8 +19,7 @@ const initService = async () => {
   const memoDir = getDefaultMemoDir();
   const dbPath = getDefaultDbPath();
 
-  // ディレクトリ作成
-  await fs.mkdir(memoDir, { recursive: true });
+  // DBディレクトリ作成（メモディレクトリはカレントディレクトリなので作成不要）
   await fs.mkdir(path.dirname(dbPath), { recursive: true });
 
   const storage = createFileStorage(memoDir);

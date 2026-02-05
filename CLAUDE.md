@@ -144,8 +144,27 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ## 環境変数
 
-| 変数名 | 説明 |
-|--------|------|
-| `GEMINI_API_KEY` | Gemini APIキー |
-| `MEMOMER_DIR` | メモ保存ディレクトリ |
-| `MEMOMER_DB_PATH` | 検索インデックスDB |
+| 変数名 | 説明 | デフォルト値 |
+|--------|------|-------------|
+| `GEMINI_API_KEY` | Gemini APIキー（必須） | - |
+| `MEMOMER_DIR` | メモ保存ディレクトリ（グローバル設定用） | カレントディレクトリ |
+| `MEMOMER_DB_PATH` | 検索インデックスDB | `{MEMOMER_DIR}/.memomer.db` |
+
+### メモの保存場所
+
+デフォルトでは**コマンドを実行したディレクトリ**にメモが保存されます。
+
+```bash
+# カレントディレクトリに直接保存
+memomer create readme-notes  # → ./readme-notes.md
+
+# サブディレクトリに整理することも可能（ユーザーが自由に決定）
+memomer create .memomer/api-docs  # → ./.memomer/api-docs.md
+memomer create docs/architecture  # → ./docs/architecture.md
+```
+
+グローバルなメモ保存場所を使いたい場合は、環境変数を設定してください：
+
+```bash
+export MEMOMER_DIR=~/.memomer/memos
+```
